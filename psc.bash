@@ -10,10 +10,13 @@ readarray sitelist < <(terminus site:list --field=name --format=list)
 for i in "${sitelist[@]}"; do
     # trim newlines from output
     base=$(echo ${i} | tr -d '\n')
+
+    # Start block of logs
     echo "------------------"
     echo "Checking status of: ${base}";
     echo "------------------"
 
+    # Build url and curl it
     devurl="dev-${base}.pantheonsite.io"
     devresponse=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$devurl")
 
@@ -26,6 +29,7 @@ for i in "${sitelist[@]}"; do
     echo "\tStatus Code: $dev_status_code"
     echo "\tResponse Time (seconds): $dev_response_time"
 
+    # Build url and curl it
     testurl="test-${base}.pantheonsite.io"
     testresponse=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$testurl")
 
@@ -38,6 +42,7 @@ for i in "${sitelist[@]}"; do
     echo "\tStatus Code: $test_status_code"
     echo "\tResponse Time (seconds): $test_response_time"
 
+    # Build url and curl it
     liveurl="live-${base}.pantheonsite.io"
     liveresponse=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$liveurl")
 
@@ -49,4 +54,9 @@ for i in "${sitelist[@]}"; do
     echo "${liveurl} status:"
     echo "\tStatus Code: $live_status_code"
     echo "\tResponse Time (seconds): $live_response_time"
+
+    # End block of logs
+    echo "------------------"
+    echo "End status of: ${base}";
+    echo "------------------"
 done

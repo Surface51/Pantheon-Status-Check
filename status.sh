@@ -5,6 +5,7 @@
 # Example usage: bash status.sh | tee -a results.txt
 
 # Reading names of all sites from terminus
+echo 'Reading site names from terminus...'
 readarray sitelist < <(terminus sites --field=name --format=list)
 
 for i in "${sitelist[@]}"; do

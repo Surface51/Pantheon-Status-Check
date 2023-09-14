@@ -2,7 +2,7 @@
 
 # terminus needs to be configured and installed for this to work
 #
-# Example usage: bash psc.bash | tee -a results.txt
+# Example usage: bash status.sh | tee -a results.txt
 
 # Reading names of all sites from terminus
 readarray sitelist < <(terminus site:list --field=name --format=list)

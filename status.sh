@@ -5,7 +5,7 @@
 # Example usage: bash status.sh | tee -a results.txt
 
 # Reading names of all sites from terminus
-readarray sitelist < <(terminus site:list --field=name --format=list)
+readarray sitelist < <(terminus sites --field=name --format=list)
 
 for i in "${sitelist[@]}"; do
     # trim newlines from output

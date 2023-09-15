@@ -2,7 +2,7 @@
 
 # terminus needs to be configured and installed for this to work
 #
-# Example usage: bash status.sh | tee -a results.txt
+# Example usage: bash status.sh | tee results.txt
 
 # Helper function to log... urls
 logURL()

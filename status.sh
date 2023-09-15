@@ -4,11 +4,44 @@
 #
 # Example usage: bash status.sh | tee -a results.txt
 
-# Reading names of all sites from terminus
-echo 'Reading site names from terminus...'
-readarray sitelist < <(terminus sites --field=name --format=list)
+# Helper function to log... urls
+logURL()
+{
+    # readable variables
+    en=$1
+    base=$2
 
-for i in "${sitelist[@]}"; do
+    # Build url and curl it
+    url="${en}-${base}.pantheonsite.io"
+    response=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$url")
+
+    # Extract the status code and response time from the response
+    status_code=$(echo "$response" | awk '{print $1}')
+    response_time=$(echo "$response" | awk '{print $2}')
+
+    # Print the status code and response time
+    echo "${url} status:"
+    echo -e "\tStatus Code: $status_code"
+    echo -e "\tResponse Time (seconds): $response_time"
+    echo -e '\n'
+}
+
+# Reading names of all sites from terminus
+initialSitelist=$(terminus sites --format=csv --fields=name,frozen)
+nonFrozenSites=()
+
+# Parse from csv format, add to array if not frozen
+while IFS=, read -r name frozen
+do
+    if [[ $frozen = "false" ]]; then
+        # trim commas from read names 
+        realname=$(echo ${name} | tr -d ',')
+        # add to final list
+        nonFrozenSites+=($realname)
+    fi
+done <<< "$initialSitelist"
+
+for i in "${nonFrozenSites[@]}"; do
     # trim newlines from output
     base=$(echo ${i} | tr -d '\n')
 
@@ -17,47 +50,9 @@ for i in "${sitelist[@]}"; do
     echo "Checking status of: ${base}";
     echo "------------------"
 
-    # Build url and curl it
-    devurl="dev-${base}.pantheonsite.io"
-    devresponse=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$devurl")
-
-    # Extract the status code and response time from the response
-    dev_status_code=$(echo "$devresponse" | awk '{print $1}')
-    dev_response_time=$(echo "$devresponse" | awk '{print $2}')
-
-    # Print the status code and response time
-    echo "${devurl} status:"
-    echo "\tStatus Code: $dev_status_code"
-    echo "\tResponse Time (seconds): $dev_response_time"
-
-    # Build url and curl it
-    testurl="test-${base}.pantheonsite.io"
-    testresponse=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$testurl")
-
-    # Extract the status code and response time from the response
-    test_status_code=$(echo "$testresponse" | awk '{print $1}')
-    test_response_time=$(echo "$testresponse" | awk '{print $2}')
-
-    # Print the status code and response time
-    echo "${testurl} status:"
-    echo "\tStatus Code: $test_status_code"
-    echo "\tResponse Time (seconds): $test_response_time"
-
-    # Build url and curl it
-    liveurl="live-${base}.pantheonsite.io"
-    liveresponse=$(curl -L -s -w "%{http_code} %{time_total}\n" -o /dev/null "$liveurl")
-
-    # Extract the status code and response time from the response
-    live_status_code=$(echo "$liveresponse" | awk '{print $1}')
-    live_response_time=$(echo "$liveresponse" | awk '{print $2}')
-
-    # Print the status code and response time
-    echo "${liveurl} status:"
-    echo "\tStatus Code: $live_status_code"
-    echo "\tResponse Time (seconds): $live_response_time"
-
-    # End block of logs
-    echo "------------------"
-    echo "End status of: ${base}";
-    echo "------------------"
+    # Log urls w/different envs
+    logURL 'dev' $base
+    logURL 'test' $base
+    logURL 'live' $base
 done
+

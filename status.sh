@@ -35,7 +35,7 @@ while IFS=, read -r name frozen
 do
     # add to arry if not frozen
     if [[ $frozen = "false" ]]; then
-        # trim commas from read names 
+        # trim commas from names
         realname=$(echo ${name} | tr -d ',')
         # add to final list
         nonFrozenSites+=($realname)

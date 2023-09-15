@@ -30,9 +30,10 @@ logURL()
 initialSitelist=$(terminus sites --format=csv --fields=name,frozen)
 nonFrozenSites=()
 
-# Parse from csv format, add to array if not frozen
+# Parse from csv format
 while IFS=, read -r name frozen
 do
+    # add to arry if not frozen
     if [[ $frozen = "false" ]]; then
         # trim commas from read names 
         realname=$(echo ${name} | tr -d ',')
